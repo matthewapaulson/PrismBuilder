@@ -4,7 +4,7 @@ package prisms;
  */
 public class Node {
 	private int compareValue;
-	private int alternateValue;
+	private int valueOfRowOrCol;
 	private Node next;
 	private Node prev;
 	private boolean alreadyTraversed = false;
@@ -24,7 +24,7 @@ public class Node {
 	 */
 	public Node(int value, int alternateValue, Direction dir, Node prev, Node next) {
 		compareValue = value;
-		this.alternateValue = alternateValue;
+		this.valueOfRowOrCol = alternateValue;
 		this.next = next;
 		this.prev = prev;
 		this.dir = dir;
@@ -41,8 +41,8 @@ public class Node {
 	 * @return
 	 * 		Returns the row or column it's part of.
 	 */
-	public int alternateValue() {
-		return alternateValue;
+	public int getRowOrColValue() {
+		return valueOfRowOrCol;
 	}
 	
 	/**

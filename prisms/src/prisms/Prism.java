@@ -14,87 +14,27 @@ public class Prism {
 	private int maxY;
 	
 	
+
 	/**
 	 * Constructor
 	 * 
-	 * @param matrix
-	 * 			A HashMap that maps Coordinates to directions (^,>,<,^). Other characters will be ignores.
+	 * @param rowsAndCOls
+	 * 			A HashMap that maps a specific row or column and a linked list of nodes representing the nodes that are in that column.
 	 * @param starting
 	 * 			The starting Coordinates.
-	 * @param bottomRight
-	 * 			The bottom right edge Coordinates indicating the maximum x and y.
+	 * @param maxX
+	 * 			The biggest x coordinate.
+	 * @param maxY
+	 * 			The biggest y coordinate.
 	 */
-	public Prism(HashMap<Coordinates,Character> matrix, Coordinates starting, Coordinates bottomRight) {
-		//The coordinates parameters are assumed to be valid.
+	public Prism(HashMap<String, Node> rowsAndCols, Coordinates starting, int maxX,int maxY) {
+		this.rowsAndCols = rowsAndCols;
 		this.starting = starting;
-		maxX = bottomRight.getX();
-		maxY = bottomRight.getY();
-		
-		for (Coordinates coords: matrix.keySet()) {
-			
-			if (coords.getX() > maxX || coords.getX() < 0 || coords.getY() > maxY || coords.getY() < 0) { //invalid coordinates
-				continue;
-			}
-			Direction dir;
-			char arrow = matrix.get(coords);
-			if (arrow == '>') {
-				dir = Direction.East;
-			} else if (arrow == '<') {
-				dir = Direction.West;
-			} else if (arrow == 'V') {
-				dir = Direction.South;
-			} else if (arrow == '^') {
-				dir = Direction.North;
-			} else { //invalid character
-				continue;
-			}
-			
-			
-			Node xHead = rowsAndCols.get(coords.rowX());
-			Node yHead = rowsAndCols.get(coords.colY());
-			
-			if (xHead == null) {
-				xHead = new Node(coords.getY(),coords.getX(),dir,null,null);
-				rowsAndCols.put(coords.rowX(), xHead);
-			} else {
-				addNode(xHead,coords.getY(),coords.getX(),dir,coords.rowX());
-			}
-			
-			if (yHead == null) {
-				yHead = new Node(coords.getX(),coords.getY(),dir,null,null);
-				rowsAndCols.put(coords.colY(), yHead);
-			} else {
-				addNode(yHead,coords.getX(),coords.getY(),dir,coords.colY());
-			}
-			
-		}
+		this.maxX = maxX;
+		this.maxY = maxY;
 	}
 	
-	/**
-	 * Helper function to add a node in order into the HashMap.
-	*/
-	public void addNode(Node nodeList, int valueToAdd, int rowOrColValue, Direction dir, String key) {
-		if (nodeList.getValue() > valueToAdd) {
-			Node newNode = new Node(valueToAdd,rowOrColValue,dir,null,nodeList);
-			nodeList.setPrev(newNode);
-			rowsAndCols.put(key,newNode);
-		} else {
-			while (nodeList.getValue() < valueToAdd) {
-				if (nodeList.getNext() == null) {
-					Node newNode = new Node(valueToAdd,rowOrColValue,dir,nodeList,null);
-					nodeList.setNext(newNode);
-					return;
-				}
-				nodeList = nodeList.getNext();
-			}
-			if (nodeList.getValue() != valueToAdd) { //Only add if not duplicate elements
-				Node newNode = new Node(valueToAdd,rowOrColValue,dir,nodeList.getPrev(),nodeList);
-				nodeList.setPrev(newNode);
-			}
-		}
-		
-		
-	}
+	
 	
 
 	/** Iterates through the nodes to find distance from start to an edge. If there's an infinite loop, it returns -1.*/
@@ -142,101 +82,101 @@ public class Prism {
 			case East:
 					newNode = rowsAndCols.get("Y" + node.getValue());
 					if (newNode == null) { 
-						return maxX - node.alternateValue();
+						return maxX - node.getRowOrColValue();
 					}
-					while (newNode.getValue() != node.alternateValue()) {
+					while (newNode.getValue() != node.getRowOrColValue()) {
 						newNode = newNode.getNext();
 						if (newNode == null) { //if no node East of the Node
-							return maxX - node.alternateValue();
+							return maxX - node.getRowOrColValue();
 						}
 					}
 					newNode = newNode.getNext();
 					if (newNode == null) { //if no node East of the Node
-						return maxX - node.alternateValue() ;
+						return maxX - node.getRowOrColValue() ;
 					}
 					while (newNode.getDirection() == node.getDirection()) {/*If it's coming from the same direction, 
 						you can't compare alternateValue, so you have to just skip it*/
 						newNode = newNode.getNext();
 						if (newNode == null) { //if no node North of the Node
-							return maxX - node.alternateValue();
+							return maxX - node.getRowOrColValue();
 						}
 					}
-					return newNode.getValue() - node.alternateValue() + traverseHelper(newNode);
+					return newNode.getValue() - node.getRowOrColValue() + traverseHelper(newNode);
 			case West:
 					newNode = rowsAndCols.get("Y" + node.getValue());
 					if (newNode == null) {
-						return node.alternateValue();
+						return node.getRowOrColValue();
 					}
-					while (newNode.getValue() != node.alternateValue()) {
+					while (newNode.getValue() != node.getRowOrColValue()) {
 						newNode = newNode.getNext();
 						if (newNode == null) { //if no node West of the Node
-							return node.alternateValue();
+							return node.getRowOrColValue();
 						}
 					}
 					newNode = newNode.getPrev();
 					if (newNode == null) { //if no node West of the Node
-						return node.alternateValue();
+						return node.getRowOrColValue();
 					}
 					while (newNode.getDirection() == node.getDirection()) {/*If it's coming from the same direction, 
 						you can't compare alternateValue, so you have to just skip it*/
 							newNode = newNode.getPrev();
 							if (newNode == null) { //if no node North of the Node
-								return node.alternateValue();
+								return node.getRowOrColValue();
 							}
 						}
-					return node.alternateValue() - newNode.getValue() + traverseHelper(newNode);
+					return node.getRowOrColValue() - newNode.getValue() + traverseHelper(newNode);
 			case South:
 					newNode = rowsAndCols.get("X" + node.getValue());
 					if (newNode == null) {	
-						return maxY - node.alternateValue();
+						return maxY - node.getRowOrColValue();
 						
 					}
 					
-					while (newNode.getValue() != node.alternateValue()) {
+					while (newNode.getValue() != node.getRowOrColValue()) {
 						newNode = newNode.getNext();
 						if (newNode == null) { //if no node South of the Node
-							return maxY - node.alternateValue();
+							return maxY - node.getRowOrColValue();
 						}
 					}
 					newNode = newNode.getNext();
 					if (newNode == null) { //if no node South of the Node
-						return maxY - node.alternateValue();
+						return maxY - node.getRowOrColValue();
 					}
 					while (newNode.getDirection() == node.getDirection()) {/*If it's coming from the same direction, 
 						you can't compare alternateValue, so you have to just skip it*/
 							newNode = newNode.getNext();
 							if (newNode == null) { //if no node North of the Node
-								return maxY - node.alternateValue();
+								return maxY - node.getRowOrColValue();
 							}
 						}
-					return newNode.getValue() - node.alternateValue() + traverseHelper(newNode);
+					return newNode.getValue() - node.getRowOrColValue() + traverseHelper(newNode);
 			case North:
 					
 					newNode = rowsAndCols.get("X" + node.getValue());	
 					if (newNode == null) {
-						return node.alternateValue();
+						return node.getRowOrColValue();
 					}
 					
-					while (newNode.getValue() != node.alternateValue()) {
+					while (newNode.getValue() != node.getRowOrColValue()) {
 						newNode = newNode.getNext();
 						if (newNode == null) { //if no node North of the Node
-							return node.alternateValue();
+							return node.getRowOrColValue();
 							
 						}
 					}
 					newNode = newNode.getPrev();
 					if (newNode == null) { //if no node North of the Node
-						return node.alternateValue();
+						return node.getRowOrColValue();
 					}
 					while (newNode.getDirection() == node.getDirection()) {/*If it's coming from the same direction, 
 					you can't compare alternateValue, so you have to just skip it*/
 						newNode = newNode.getPrev();
 						if (newNode == null) { //if no node North of the Node
-							return node.alternateValue();
+							return node.getRowOrColValue();
 						}
 					}
 					
-					return node.alternateValue() - newNode.getValue() + traverseHelper(newNode);
+					return node.getRowOrColValue() - newNode.getValue() + traverseHelper(newNode);
 			}
 		throw new Exception("It should never reach here. Direction's enums have been checked.");
 	}

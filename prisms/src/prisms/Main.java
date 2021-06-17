@@ -24,8 +24,9 @@ public class Main {
 //		matrix.put(new Coordinates(2,0),'>'); 
 		matrix.put(new Coordinates(8,0),'V');
 		
-		Prism test = new Prism(matrix,startingPoint,bottomRight);
-		System.out.println(test.traverse());
+		PrismBuilder test = new PrismBuilder(matrix,startingPoint,bottomRight);
+		Prism prism = test.build();
+		System.out.println(prism.traverse());
 
 	}
 
